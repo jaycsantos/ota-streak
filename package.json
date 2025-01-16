@@ -10,7 +10,10 @@
   ],
   "scripts": {
     "build": "npm run build --workspace",
-    "test": "npm test --workspace"
+    "test": "npm test --workspace",
+    "start": "npm run start --workspace",
+    "dev:api": "npm run start:debug --workspace=streak-api",
+    "dev:web": "npm run dev --workspace=streak-web"
   },
   "devDependencies": {
     "prettier": "^3.4.2",

@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #fff9ec;
+  --foreground: #212121;
+  --primary: #6442ef;
+  --secondary: #ddd5fb;
+}
+
+html,
+body {
+  color: var(--foreground);
+  background: var(--background) url("/bg.svg") bottom center no-repeat;
+  background-size: contain;
+  font-family: "Euclid Circular B", sans-serif;
+}
+body {
+  min-height: 100dvh;
+  min-width: 100vw;
+}
