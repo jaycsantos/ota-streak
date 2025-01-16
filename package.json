@@ -1,0 +1,19 @@
+{
+  "name": "ota-streaks",
+  "version": "0.0.1",
+  "description": "OTA Coding Challenge",
+  "private": true,
+  "author": "jaycsantos",
+  "license": "GNU GPLv3",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace",
+    "test": "npm test --workspace"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "typescript": "^5"
+  }
+}
