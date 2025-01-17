@@ -37,48 +37,59 @@ export class StreaksService {
     for (let i = 0, debt = 0; i < 7; i++) {
       const date = this.moment(dates[0]).add(i, 'days').format();
       const activities = data[date] || 0;
-      const current = <StreakDayDto>{
+      days.push({
         date,
         activities,
-        state: activities > debt ? 'COMPLETED' : 'INCOMPLETE',
-      };
-      days.push(current);
+        state: activities > 0 ? 'COMPLETED' : 'INCOMPLETE',
+      });
+      // stop if it's the current day
+      if (date == curDay) break;
+    }
 
-      if (activities > 0) {
-        // can payoff only if day before debt was completed or saved
-        if (debt > 0 && ['SAVED', 'COMPLETED'].includes(days[i - debt - 1]?.state)) {
-          // traverse back to payoff debt, start at farthest day
-          for (
-            let j = 0, p = i - debt + j;
-            p > 0 && j < Math.min(debt, activities);
-            j++, p = i - debt + j
-          ) {
-            days[p].state = 'SAVED';
+    for (let i = 0, debt = 0; i < days.length; i++) {
+      const day = days[i];
+      if (day.activities > 0) {
+        // has debt & day before debt has activity
+        if (debt > 0 && days[i - debt - 1]?.activities) {
+          // today or can pay all debt
+          if (curDay == day.date || day.activities > debt) {
+            const budget = Math.min(debt, day.activities);
+            for (let j = 0; j < budget; j++) {
+              days[i - 1 - j].state = 'SAVED';
 
-            // check if at risk
-            if (j == 0 && date == curDay && current.state == 'INCOMPLETE')
-              days[p].state = 'AT_RISK';
+              if (j == budget - 1 && curDay == day.date && day.activities <= debt)
+                days[i - 1 - j].state = 'AT_RISK';
+            }
           }
-        } else {
+          if (curDay == day.date && day.activities <= debt) {
+            day.state = 'INCOMPLETE';
+          }
         }
-        // reduce debt by activities
-        debt = Math.max(debt - activities + 1, 0);
+        debt = 0;
       } else {
-        // accumulate for this day
         debt = Math.min(debt + 1, this.maxDebt);
       }
     }
 
     let total = 0;
-    const preDays = days.slice(0, days.findIndex((d) => d.date == curDay) + 1).reverse();
-    for (let i = 0, debt = 0; i < preDays.length; i++) {
-      const day = preDays[i];
+    for (let i = 1; i <= days.length; i++) {
+      const day = days[days.length - i];
       if (day.state != 'INCOMPLETE') {
         total++;
       } else if (i > this.maxDebt) {
-        total = 0;
         break;
       }
+    }
+
+    // fill missing future days
+    for (let i = 0, left = 7 - days.length; i < left; i++) {
+      days.push({
+        date: this.moment(curDay)
+          .add(i + 1, 'days')
+          .format(),
+        activities: 0,
+        state: 'INCOMPLETE',
+      });
     }
 
     return {
@@ -91,7 +102,7 @@ export class StreaksService {
   private mock(id: number): Streaks | null {
     switch (id) {
       case 0: {
-        return { [this.moment().format()]: 1 };
+        return {};
       }
       case 1:
         return {
