@@ -31,6 +31,7 @@ Project setup
 ### Web
 
 - Figma design lacked specific notes on implementation details, particularly regarding the visual representation of checked and unchecked days. I relied on my best judgment for these aspects.
+- Design background image is weirdly designed in that it uses opacity instead of solid colors, I had to do manual tweaks to achieve the correct colors.
 - Days are assumed to be in the server's timezone. If the client's timezone differs, synchronization issues may occur. Timezone management is outside the scope of this implementation.
 - I added several more test cases (0-6) to cover a wider range of scenarios. Without these, the component would display an "Unavailable" message. Handling 404 errors is beyond the scope of this work.
 
