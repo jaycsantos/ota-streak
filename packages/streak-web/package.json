@@ -1,5 +1,6 @@
 {
   "name": "streak-web",
+  "version": "0.0.1",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -7,9 +8,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.64.1",
     "clsx": "^2.1.1",
     "moment": "^2.30.1",
+    "motion": "^11.18.0",
     "next": "15.1.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
