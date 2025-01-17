@@ -19,4 +19,10 @@ describe('StreaksController', () => {
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
+
+  describe('getStreaks', () => {
+    it('should return a Promise', () => {
+      expect(controller.getStreaks(1)).toBeInstanceOf(Promise);
+    });
+  });
 });

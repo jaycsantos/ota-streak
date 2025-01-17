@@ -9,11 +9,28 @@ export class StreaksService {
   // TODO: can later be a configuration
   private readonly maxDebt = 2;
 
-  async getStreaks(id: number): Promise<StreaksDto | null> {
-    const data = await this.loadStreakWeek(id);
-    if (!data) return null;
+  /**
+   * Loads the streak data for the week.
+   *
+   * Note: Entry point for fetching streak data from a database.
+   * Imp: Make sure this queries for the last 7 days from today.
+   *
+   * @param id
+   * @returns
+   */
+  async getStreakWeek(id: number): Promise<Streaks | null> {
+    return this.mock(id);
+  }
 
-    const today = this.moment().format();
+  /**
+   * Processes the streak data for the week from a given date.
+   *
+   * @param {Streaks} data - payload of week streaks from `loadStreakWeek`
+   * @param {string} curDay - targeted day YYYY-MM-DD, defaults to today
+   * @returns
+   */
+  processWeekStreak(data: Streaks, curDay?: string): StreaksDto {
+    curDay ??= this.moment().format();
     const dates = Object.keys(data).sort();
     const days: Array<StreakDayDto> = [];
 
@@ -29,10 +46,7 @@ export class StreaksService {
 
       if (activities > 0) {
         // can payoff only if day before debt was completed or saved
-        if (
-          debt > 0 &&
-          ['SAVED', 'COMPLETED'].includes(days[i - debt - 1]?.state)
-        ) {
+        if (debt > 0 && ['SAVED', 'COMPLETED'].includes(days[i - debt - 1]?.state)) {
           // traverse back to payoff debt, start at farthest day
           for (
             let j = 0, p = i - debt + j;
@@ -42,7 +56,7 @@ export class StreaksService {
             days[p].state = 'SAVED';
 
             // check if at risk
-            if (j == 0 && date == today && current.state == 'INCOMPLETE')
+            if (j == 0 && date == curDay && current.state == 'INCOMPLETE')
               days[p].state = 'AT_RISK';
           }
         } else {
@@ -56,27 +70,22 @@ export class StreaksService {
     }
 
     let total = 0;
-    for (const day of days) {
-      if (day.date <= today) {
-        if (day.state != 'INCOMPLETE') {
-          total++;
-        } else {
-          total = 0;
-        }
+    const preDays = days.slice(0, days.findIndex((d) => d.date == curDay) + 1).reverse();
+    for (let i = 0, debt = 0; i < preDays.length; i++) {
+      const day = preDays[i];
+      if (day.state != 'INCOMPLETE') {
+        total++;
+      } else if (i > this.maxDebt) {
+        total = 0;
+        break;
       }
     }
 
-    days.reverse();
-
     return {
-      activitiesToday: data[today] || 0,
+      activitiesToday: data[curDay] || 0,
       total,
       days,
     };
-  }
-
-  async loadStreakWeek(id: number): Promise<Streaks | null> {
-    return this.mock(id);
   }
 
   private mock(id: number): Streaks | null {
